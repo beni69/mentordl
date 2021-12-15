@@ -129,11 +129,8 @@ fn main() -> Result<(), Error> {
     }
     #[cfg(windows)]
     {
-        exec(format!(
-            "powershell.exe -NoLogo -NoProfile -Command Expand-Archive -Force -Path '{}' -DestinationPath '{}'",
-            &zipname,
-            &file_path
-        ));
+        fs::create_dir(file_path)?;
+        exec(format!("tar.exe -xvf {} -C {}", &zipname, &file_path));
     }
 
     // delete original zip file
