@@ -129,7 +129,11 @@ fn main() -> Result<(), Error> {
     }
     #[cfg(windows)]
     {
-        exec(format!("powershell -NoProfile -NoLogo -ExecutionPolicy Bypass -Command 'Expand-Archive -DestinationPath {} -LiteralPath {}'", &file_path, &zipname));
+        exec(format!(
+            "powershell.exe -NoLogo -NoProfile -Command Expand-Archive -Force -Path '{}' -DestinationPath '{}'",
+            &zipname,
+            &file_path
+        ));
     }
 
     // delete original zip file
