@@ -1,11 +1,12 @@
 [package]
 name = "mentordl"
-version = "1.0.1"
+version = "1.1.0"
 edition = "2021"
 
 [features]
 
 [dependencies]
+clap = { version = "3.0.0-rc.9", features = ["derive"] }
 dirs = "4.0.0"
 isahc = { version = "1.6.0", features = ["static-curl", "cookies"] }
 log = "0.4.14"

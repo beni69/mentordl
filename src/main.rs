@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate log;
+use clap::Parser;
 use isahc::{
     cookies::{Cookie, CookieJar},
     http::Uri,
@@ -8,7 +9,6 @@ use isahc::{
 };
 use serde_derive::Deserialize;
 use std::{
-    env::args,
     fs,
     path::PathBuf,
     process::{exit, Command},
@@ -16,6 +16,18 @@ use std::{
 };
 
 const HOST: &str = "https://szlginfo.ptamas.hu";
+
+#[derive(Parser, Debug)]
+#[clap(name = "mentordl", author = "beni69",version = env!("CARGO_PKG_VERSION"))]
+struct Args {
+    #[clap(name = "url", help = "URL to download")]
+    url: String,
+    #[clap(name = "output dir", help = "Output directory")]
+    dir: String,
+
+    #[clap(name = "force", help = "Overwrite existing directory", long, short)]
+    force: bool,
+}
 
 #[derive(Debug, Deserialize)]
 struct Conf {
@@ -28,14 +40,12 @@ fn main() -> Result<(), Error> {
     pretty_env_logger::init();
     info!("starting up..");
 
-    // parse args
-    let args: Vec<String> = args().collect();
-    if args.len() < 2 {
-        eprintln!("Usage: {} <file url> <file name>", args[0]);
-        exit(1);
-    }
-    let file_url = &args[1];
-    let file_path = &args[2];
+    let args = Args::parse();
+    debug!("{:?}", args);
+
+    let file_url = &args.url;
+    let file_path = &args.dir;
+
     // parse config file
     let mut conf_file = PathBuf::from(dirs::config_dir().unwrap());
     conf_file.push("mentordl.txt");
@@ -58,6 +68,19 @@ fn main() -> Result<(), Error> {
         }
     };
     info!("{:?}", &conf);
+
+    // check if directory exists
+    if PathBuf::from(file_path).exists() {
+        if args.force {
+            fs::remove_dir_all(file_path).expect("failed to remove directory");
+        } else {
+            eprintln!(
+                "Directory already exists: {:?}\nRun again with the --force option to overwrite",
+                &file_path
+            );
+            exit(1);
+        }
+    }
 
     // create a session
     let cookie_jar = CookieJar::new();
