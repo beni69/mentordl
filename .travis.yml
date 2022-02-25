@@ -16,7 +16,7 @@ jobs:
     - arch: arm64
     # Windows
     - os: windows
-      before_deploy: copy target/release/$CRATE_NAME.exe "$CRATE_NAME-$TRAVIS_TAG-$TRAVIS_CPU_ARCH.exe"
+      before_deploy: cp target/release/$CRATE_NAME.exe "$CRATE_NAME-$TRAVIS_TAG-$TRAVIS_CPU_ARCH.exe"
     # test rust nightly
     - rust: nightly
   allow_failures:
