@@ -1,0 +1,37 @@
+arch: amd64
+os: linux
+dist: focal
+language: rust
+rust: stable
+cache: cargo
+
+env:
+  global:
+    - CRATE_NAME=mentordl
+
+jobs:
+  include:
+    # Linux
+    - arch: amd64
+    - arch: arm64
+    # Windows
+    - os: windows
+      before_deploy: copy target/release/$CRATE_NAME.exe "$CRATE_NAME-$TRAVIS_TAG-$TRAVIS_CPU_ARCH.exe"
+    # test rust nightly
+    - rust: nightly
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
+
+script: cargo build --release --verbose
+
+before_deploy: cp -v target/release/$CRATE_NAME "$CRATE_NAME-$TRAVIS_TAG-$TRAVIS_CPU_ARCH"
+
+deploy:
+  provider: releases
+  edge: true # travis dpl v2
+  on:
+    tags: true
+    condition: $TRAVIS_RUST_VERSION = stable
+  file: $CRATE_NAME-$TRAVIS_TAG-$TRAVIS_CPU_ARCH*
+  # skip_cleanup: true # not needed in dplv2
